@@ -1,0 +1,8 @@
+[Core]
+Name = interavtive-shell
+Module = interavtive-shell
+
+[Documentation]
+Author = Advaita Krishna das
+Version = 0.1
+Description = Interactive Shell
