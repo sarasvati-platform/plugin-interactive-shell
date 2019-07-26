@@ -10,6 +10,8 @@ class InteractiveShellApplicationPlugin(ApplicationPlugin):
 
     def activate(self):
         super().activate()
+        brain = self._api.brain.open("default.json")
+
         plugin = self._api.plugins.get(category="CommandLine")
 
         prompt = ""
