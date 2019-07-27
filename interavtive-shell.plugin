@@ -1,6 +1,6 @@
 [Core]
 Name = interavtive-shell
-Module = interavtive-shell
+Module = .
 
 [Documentation]
 Author = Advaita Krishna das
