@@ -1,6 +1,6 @@
 from ansimarkup import ansiprint as print
 
-from sarasvati.commands.command import Command, CommandException
+from sarasvati.commands.command import Command, CommandException, CommandResult
 from sarasvati.commands.result import (ErrorCommandLineResult,
                                        MessageCommandLineResult)
 
@@ -16,20 +16,19 @@ class InteractiveShellApplication:
 
         prompt = ""
         while prompt != "/q":
-            prompt = input("> ")
+            active_thought = brain.active_thought
+            prompt = input(active_thought.title + "> " if active_thought else "> ")
             result = None
             
             try:
                 result = plugin.execute(prompt)
             except CommandException as ex:
                 print(f"<red>{ex.message}</red>")
-    
+
             if isinstance(result, Command):
                 result = result.do()
-                if result.message:
-                    print(result.message)
-            
-            if isinstance(result, MessageCommandLineResult):
+
+            if isinstance(result, (MessageCommandLineResult, CommandResult)):
                 if isinstance(result.message, str):
                     print(result.message)
                 elif isinstance(result.message, list):
