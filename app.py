@@ -11,7 +11,7 @@ class InteractiveShellApplication:
 
     def run(self):
         path = self.__api.config.brains.path
-        brain = self.__api.brain.open("local://" + path + "/default/brain.json")
+        brain = self.__api.brains.open("local://" + path + "/default")
         plugin = self.__api.plugins.get(category="CommandLine")
 
         prompt = ""
