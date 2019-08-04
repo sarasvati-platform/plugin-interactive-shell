@@ -17,7 +17,7 @@ class InteractiveShellApplication:
         prompt = ""
         while prompt != "/q":
             active_thought = brain.active_thought
-            prompt = input(active_thought.title + "> " if active_thought else "> ")
+            prompt = input(brain.name + "@" + (active_thought.title + "> " if active_thought else "> "))
             result = None
             
             try:
