@@ -10,12 +10,13 @@ class InteractiveShellApplication:
         self.__api = api
 
     def run(self):
-        path = self.__api.config.brains.path
+        path = self.__api.config.stores.local.path
         brain = self.__api.brains.open("local://" + path + "/default")
         plugin = self.__api.plugins.get(category="CommandLine")
 
         prompt = ""
         while prompt != "/q":
+            brain = self.__api.brains.active
             active_thought = brain.active_thought
             prompt = input(brain.name + "@" + (active_thought.title + "> " if active_thought else "> "))
             result = None
