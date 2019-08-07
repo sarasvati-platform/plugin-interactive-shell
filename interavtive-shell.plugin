@@ -4,5 +4,5 @@ Module = .
 
 [Documentation]
 Author = Advaita Krishna das
-Version = 0.1
+Version = 0.5
 Description = Interactive Shell
