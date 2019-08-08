@@ -1,5 +1,6 @@
 from ansimarkup import ansiprint as print
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.lexers import PygmentsLexer
 
 from sarasvati.commands.command import Command, CommandException, CommandResult
@@ -15,8 +16,24 @@ class InteractiveShellApplication:
         self.__command_line = self.__api.plugins.get(category="CommandLine")
         self.__prompt_session = PromptSession(
             lexer=PygmentsLexer(PromptLexer),
-            completer=PromptCompleter(
-                self.__command_line.get_commands(), api))
+            complete_while_typing=True, bottom_toolbar=self.bottom_toolbar,
+            rprompt=self.rprompt)
+
+    def bottom_toolbar(self):
+        brain = self.__api.brains.active
+        thought_title = brain.active_thought.title if brain.active_thought else ""
+        return HTML(f'<b><style bg="ansired"> {brain.name}</style> // {thought_title}</b>')
+
+    def rprompt(self):
+        brain = self.__api.brains.active
+        if not brain:
+            return ""
+        if not brain.active_thought:
+            return ""
+        at = brain.active_thought.links.parents
+        return HTML("<style bg='#ff0066'>" + \
+            ", ".join(list(map(lambda x: x.title, at))) + \
+            "</style>")
 
     def run(self):
         self.__open_brain()
@@ -24,8 +41,11 @@ class InteractiveShellApplication:
         command = ""
         while command != "/q":
             try:
-                command = self.__prompt()
-                self.__execute(command)
+                command = self.__prompt().strip()
+                if command.startswith("/"):
+                    self.__execute(command)
+                else:
+                    self.__execute("/activate " + command)
             except CommandException as ex:
                 print(f"<red>{ex.message}</red>")
 
@@ -36,8 +56,9 @@ class InteractiveShellApplication:
     def __prompt(self):
         brain = self.__api.brains.active
         thought_title = brain.active_thought.title if brain.active_thought else ""
-        prompt_string = brain.name +  ("@" + thought_title + "> " if thought_title else "> ")
-        return self.__prompt_session.prompt(prompt_string)
+        return self.__prompt_session.prompt(
+            f"{thought_title}> ", 
+            completer=PromptCompleter(self.__command_line.get_commands(), self.__api))
 
     def __execute(self, command):
         result = None

@@ -29,9 +29,9 @@ class PromptCompleter(Completer):
                     start_position=-len(document.text), 
                     display_meta=info.description)
 
-        if self.__mode is "arg":
+        if self.__mode in ["arg", ""]:
             text = document.text[self.__start:]
-            if len(text) >= 1:
+            if len(text) >= 2:
                 thoughts = self.__api.brains.active.find_thoughts({
                     "field": "definition.title",
                     "operator": "~~",
@@ -41,6 +41,10 @@ class PromptCompleter(Completer):
                     yield Completion(thought.title, start_position=-len(text))
 
     def __switch_state(self, document: Document):
+        if ("/" not in document.text) and (self.__mode is not ""):
+            self.__mode = ""
+            self.__start = 0
+
         if document.char_before_cursor is "/":
             self.__mode = "command"
             self.__start = document.cursor_position
