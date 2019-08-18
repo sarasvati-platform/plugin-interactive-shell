@@ -22,7 +22,29 @@ class InteractiveShellApplication:
     def bottom_toolbar(self):
         brain = self.__api.brains.active
         thought_title = brain.active_thought.title if brain.active_thought else ""
-        return HTML(f'<b><style bg="ansired"> {brain.name}</style> // {thought_title}</b>')
+        
+        #parent_title = ""
+        #if brain.active_thought and len(brain.active_thought.links.parents) == 1:
+        #    parent_title = brain.active_thought.links.parents[0].title
+        parent_title = self.get_thought_path(brain.active_thought, [])
+        parent_title = " -> ".join(reversed(parent_title))
+
+        return HTML(f'<b><style bg="ansired"> {brain.name}</style> // {parent_title}</b>')
+
+    def get_thought_path(self, thought, path):
+        if not thought:
+            return []
+
+        path.append(thought.title)
+
+        if len(thought.links.parents) == 1:
+            parent = thought.links.parents[0]
+            return self.get_thought_path(parent, path)
+        elif len(thought.links.references) == 1:
+            parent = thought.links.references[0]
+            return self.get_thought_path(parent, path)
+        else:
+            return path
 
     def rprompt(self):
         brain = self.__api.brains.active
@@ -30,10 +52,11 @@ class InteractiveShellApplication:
             return ""
         if not brain.active_thought:
             return ""
-        at = brain.active_thought.links.parents
-        return HTML("<style bg='#ff0066'>" + \
-            ", ".join(list(map(lambda x: x.title, at))) + \
-            "</style>")
+        if brain.active_thought.has_component("taxonomy"):
+            category = brain.active_thought.taxonomy.category or ""
+            tags = ", ".join(sorted(brain.active_thought.taxonomy.tags))
+            return HTML(f"<style bg='#ff0066'>{category}</style> <style bg='#6600ff'>{tags}</style>")
+        return ""
 
     def run(self):
         self.__open_brain()
@@ -67,8 +90,8 @@ class InteractiveShellApplication:
         except CommandException as ex:
             print(f"<red>{ex.message}</red>")
 
-        if isinstance(result, Command):
-            result = result.do()
+        # if isinstance(result, Command):
+        #     result = result.do()
 
         if isinstance(result, (CommandResult)):
             if isinstance(result.message, str):
