@@ -22,11 +22,9 @@ class InteractiveShellApplication:
 
     def bottom_toolbar(self):
         brain = self.__api.brains.active
-        thought_title = brain.active_thought.title if brain.active_thought else ""
-        
-        #parent_title = ""
-        #if brain.active_thought and len(brain.active_thought.links.parents) == 1:
-        #    parent_title = brain.active_thought.links.parents[0].title
+        if not brain:
+            return HTML(f'<b><style bg="ansired"> NO BRAIN</style></b>')
+
         parent_title = get_thought_path(brain.active_thought)
         parent_title = " / ".join(reversed(parent_title))
 
@@ -45,8 +43,11 @@ class InteractiveShellApplication:
         return ""
 
     def run(self):
-        self.__open_brain()
-        
+        try:
+            self.__open_brain()
+        except Exception as ex:
+            print(f"<red>Unable to open brain: {ex}</red>")
+
         command = ""
         while command != "/q":
             try:
@@ -57,6 +58,8 @@ class InteractiveShellApplication:
                     self.__execute("/activate-thought " + command)
             except CommandException as ex:
                 print(f"<red>{ex.message}</red>")
+            except Exception as ex:
+                print(f"<red>{ex}</red>")
 
     def __open_brain(self, path:str = "default"):
         path = self.__api.config.stores.local.path  # todo: config may not exist
@@ -64,7 +67,7 @@ class InteractiveShellApplication:
 
     def __prompt(self):
         brain = self.__api.brains.active
-        thought_title = brain.active_thought.title if brain.active_thought else ""
+        thought_title = brain.active_thought.title if brain and brain.active_thought else ""
         return self.__prompt_session.prompt(
             f"{thought_title}> ", 
             completer=PromptCompleter(self.__command_line.get_commands(), self.__api))

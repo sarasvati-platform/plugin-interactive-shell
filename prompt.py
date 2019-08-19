@@ -23,30 +23,33 @@ class PromptCompleter(Completer):
         self.__api = api
 
     def get_completions(self, document, complete_event):
-        self.__switch_state(document)
+        try:
+            self.__switch_state(document)
 
-        if self.__mode is "command":
-            for command in filter(lambda c: document.text in c.command,self.__commands):
-                yield Completion(command.command, 
-                    start_position=-len(document.text), 
-                    display_meta=command.description)
+            if self.__mode is "command":
+                for command in filter(lambda c: document.text in c.command,self.__commands):
+                    yield Completion(command.command, 
+                        start_position=-len(document.text), 
+                        display_meta=command.description)
 
-        if self.__mode in ["arg", ""]:
-            text = document.text[self.__start:]
-            if len(text) >= 2:
-                thoughts = self.__api.brains.active.find_thoughts({
-                    "field": "definition.title",
-                    "operator": "~~",
-                    "value": text
-                })
-                for thought in thoughts:
-                    path = get_thought_path(thought)
-                    path = " -> ".join(path[1:])
-                    category = ""
-                    if thought.has_component("taxonomy") and thought.taxonomy.category:
-                        category = "("+thought.taxonomy.category+")"
-                    meta = HTML(f'{path} <style bg="#ff0066">{category}</style>')
-                    yield Completion(thought.title, start_position=-len(text), display_meta=meta)
+            if self.__mode in ["arg", ""] and self.__api.brains.active:
+                text = document.text[self.__start:]
+                if len(text) >= 2:
+                    thoughts = self.__api.brains.active.find_thoughts({
+                        "field": "definition.title",
+                        "operator": "~~",
+                        "value": text
+                    })
+                    for thought in thoughts:
+                        path = get_thought_path(thought)
+                        path = " -> ".join(path[1:])
+                        category = ""
+                        if thought.has_component("taxonomy") and thought.taxonomy.category:
+                            category = "("+thought.taxonomy.category+")"
+                        meta = HTML(f'{path} <style bg="#ff0066">{category}</style>')
+                        yield Completion(thought.title, start_position=-len(text), display_meta=meta)
+        except Exception as ex:
+            yield Completion(f"Error: {ex}")
 
     def __switch_state(self, document: Document):
         if ("/" not in document.text) and (self.__mode is not ""):
