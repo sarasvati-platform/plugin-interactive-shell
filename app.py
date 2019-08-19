@@ -5,6 +5,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 from sarasvati.commands.command import Command, CommandException, CommandResult
 
+from .aux import get_thought_path
 from .prompt import PromptCompleter, PromptLexer
 
 
@@ -26,25 +27,10 @@ class InteractiveShellApplication:
         #parent_title = ""
         #if brain.active_thought and len(brain.active_thought.links.parents) == 1:
         #    parent_title = brain.active_thought.links.parents[0].title
-        parent_title = self.get_thought_path(brain.active_thought, [])
-        parent_title = " -> ".join(reversed(parent_title))
+        parent_title = get_thought_path(brain.active_thought)
+        parent_title = " / ".join(reversed(parent_title))
 
         return HTML(f'<b><style bg="ansired"> {brain.name}</style> // {parent_title}</b>')
-
-    def get_thought_path(self, thought, path):
-        if not thought:
-            return []
-
-        path.append(thought.title)
-
-        if len(thought.links.parents) == 1:
-            parent = thought.links.parents[0]
-            return self.get_thought_path(parent, path)
-        elif len(thought.links.references) == 1:
-            parent = thought.links.references[0]
-            return self.get_thought_path(parent, path)
-        else:
-            return path
 
     def rprompt(self):
         brain = self.__api.brains.active
@@ -68,7 +54,7 @@ class InteractiveShellApplication:
                 if command.startswith("/"):
                     self.__execute(command)
                 else:
-                    self.__execute("/activate " + command)
+                    self.__execute("/activate-thought " + command)
             except CommandException as ex:
                 print(f"<red>{ex.message}</red>")
 
