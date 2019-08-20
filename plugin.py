@@ -14,7 +14,6 @@ class InteractiveShellApplicationPlugin(ApplicationPlugin):
         if len(command_lines) > 1:
             raise Exception("Too many 'CommandLine' plugins registered.")
 
-
     def activate(self):
         super().activate()
         app = InteractiveShellApplication(self._api)
