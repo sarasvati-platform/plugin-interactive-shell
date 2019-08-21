@@ -5,4 +5,4 @@
 </p>
 
 Runs Sarasvati app as an interactive shell.
-[![asciicast](https://asciinema.org/a/gl26FZKH5xPwUqVqe78NgrP4R.svg)]
+![asciicast](https://asciinema.org/a/gl26FZKH5xPwUqVqe78NgrP4R.svg)
