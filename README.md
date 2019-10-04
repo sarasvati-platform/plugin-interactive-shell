@@ -1,4 +1,8 @@
-# Interactive Shell plugin
-Plugin for Sarasvati application. Runs Sarasvati app as an interactive shell.
+<p align="center">
+    <a href="https://github.com/sarasvati-platform/sarasvati">
+        <img src="https://raw.githubusercontent.com/sarasvati-platform/sarasvati/master/assets/logowt.svg?raw=true&sanitize=true" height="96px"/>
+    </a>
+</p>
 
-[![asciicast](https://asciinema.org/a/vcJZsx99BalI9931fug1GgtFP.svg)](https://asciinema.org/a/vcJZsx99BalI9931fug1GgtFP)
+Runs Sarasvati app as an interactive shell.
+![asciicast](https://asciinema.org/a/gl26FZKH5xPwUqVqe78NgrP4R.svg)
