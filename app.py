@@ -63,8 +63,7 @@ class InteractiveShellApplication:
                 print(HTML(f"<style fg='ansired'>{ex}</style>"))
 
     def __open_brain(self, path:str = "default"):
-        path = self.__api.config.stores.local.path  # todo: config may not exist
-        return self.__api.brains.open("local://" + path + "/default")
+        return self.__api.brains.open("local://default")
 
     def __prompt(self):
         brain = self.__api.brains.active
