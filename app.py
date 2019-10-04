@@ -1,5 +1,5 @@
-from ansimarkup import ansiprint as print
 from prompt_toolkit import PromptSession
+from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.lexers import PygmentsLexer
 
@@ -12,7 +12,7 @@ from .prompt import PromptCompleter, PromptLexer
 class InteractiveShellApplication:
     def __init__(self, api):
         self.__api = api
-        
+
         # initialize command line
         self.__command_line = self.__api.plugins.get(category="CommandLine")
         self.__prompt_session = PromptSession(
@@ -46,7 +46,7 @@ class InteractiveShellApplication:
         try:
             self.__open_brain()
         except Exception as ex:
-            print(f"<red>Unable to open brain: {ex}</red>")
+            print(HTML(f"<style fg='ansired'>Unable to open brain: {ex}</style>"))
 
         command = ""
         while command != "/q":
@@ -57,9 +57,10 @@ class InteractiveShellApplication:
                 else:
                     self.__execute("/activate-thought " + command)
             except CommandException as ex:
-                print(f"<red>{ex.message}</red>")
+                print(HTML(f"<style fg='ansired'>{ex.message}</style>"))
+                print(ex.__traceback__)
             except Exception as ex:
-                print(f"<red>{ex}</red>")
+                print(HTML(f"<style fg='ansired'>{ex}</style>"))
 
     def __open_brain(self, path:str = "default"):
         path = self.__api.config.stores.local.path  # todo: config may not exist
@@ -69,7 +70,7 @@ class InteractiveShellApplication:
         brain = self.__api.brains.active
         thought_title = brain.active_thought.title if brain and brain.active_thought else ""
         return self.__prompt_session.prompt(
-            f"{thought_title}> ", 
+            f"{thought_title}> ",
             completer=PromptCompleter(self.__command_line.get_commands(), self.__api))
 
     def __execute(self, command):
@@ -77,14 +78,11 @@ class InteractiveShellApplication:
         try:
             result = self.__command_line.execute(command)
         except CommandException as ex:
-            print(f"<red>{ex.message}</red>")
+            print(HTML(f"<style fg='ansired'>{ex.message}</style>"))
 
-        # if isinstance(result, Command):
-        #     result = result.do()
-
-        if isinstance(result, (CommandResult)):
+        if isinstance(result, CommandResult):
             if isinstance(result.message, str):
-                print(result.message)
+                print(HTML(result.message))
             elif isinstance(result.message, list):
                 for line in result.message:
-                    print(line)
+                    print(HTML(line))
